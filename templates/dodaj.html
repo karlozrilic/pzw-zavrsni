@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Celeste pizza{% endblock %}
+
+{% block page_content %}
+    
+<div class="intro-login">
+    <div class="container">
+        <div class="page-header">
+            {% for message in get_flashed_messages() %}
+            <div class="alert alert-danger fade show uspjeh">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {{ dodajForm.regOrJumbo.label }}
+
+            {{ wtf.quick_form(dodajForm) }}
+        </div>
+    </div>
+</div>
+
+{% include 'footer.html' %}
+{% endblock %}

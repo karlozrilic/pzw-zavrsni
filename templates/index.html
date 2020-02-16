@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Celeste pizza{% endblock %}
+
+{% block page_content %}
+
+{% for message in get_flashed_messages() %}
+    {% if bad == True %}
+    <div class="alert alert-danger fade show uspjeh">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% else %}
+    <div class="alert alert-success alert-dismissible fade show uspjeh">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ message }}
+    </div>
+    {% endif %}
+{% endfor %}
+
+<div class="image1">
+    <div class="hero-text">
+        <img src="../static/images/logo.png">
+        <h1 style="font-size: 4em;">CELESTE PIZZA</h1>
+    </div>
+</div>
+
+<div class="intro">
+
+    <h3 id="big-text">
+        UŽIVAJTE U VRHUNSKOJ HRANI PO PRIHVATLJIVIM CIJENAMA U UGODNOM AMBIJENTU U CENTRU GRADA, UZ LJUBAZNO OSOBLJE.
+    </h3>
+
+</div>
+
+<div class="image2" id="usluge">
+    <div class="hero-text">
+        <h1 style="font-size: 4em;">NAŠE USLUGE</h1>
+    </div>
+</div>
+
+<div class="usluge">
+
+    <div class="cards">
+        <div class="card mx-auto">
+            <img src="../static/images/taxi-pizza.jpg" alt="Taxi pizza" style="width:100%">
+            <div class="card-container">
+                <h4><b>Taxi pizza</b></h4> 
+                <p>Uživati u našim specijalitetima možete online narudžbom!</p> 
+            </div>
+        </div>
+        <div class="card mx-auto">
+            <img src="../static/images/pizzeria.jpg" alt="Pizzeria" style="width:100%">
+            <div class="card-container">
+                <h4><b>Pizzeria</b></h4> 
+                <p>Uživajte u vrhunskoj hrani po prihvatljivim cijenama.</p> 
+            </div>
+        </div>
+        <div class="card mx-auto">
+            <img src="../static/images/bistro.jpg" alt="Bistro" style="width:100%">
+            <div class="card-container">
+                <h4><b>Bistro</b></h4> 
+                <p>Uživajte u vrhunskoj hrani u ugodnom ambijentu u centru grada.</p> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="image3" id="meni">
+    <div class="hero-text">
+        <h1 style="font-size: 4em;">MENI</h1>
+    </div>
+</div>
+
+<div class="meni">
+    {% if username %}
+        <div class="card2 mx-auto">
+            <button id="admin-add-pizza" class="admin-add-pizza">Dodaj novu pizzu</button>
+        </div>
+        <div id="add-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="add-close close">&times;</span>
+                </div>
+                {{ wtf.quick_form(addForm) }}
+            </div>
+        </div>
+    {% else %}
+    {% endif %}
+    <div class="cards2">
+        {% for i in data %}
+        <div id="pizza" class="card2 mx-auto pizza">
+            <img class="card-image2" src="{{i.imageSrc}}" alt="{{i.pizzaName}}">
+            <div class="card-container2">
+                <p><b>{{i.pizzaName}}</b></p>
+                <p>({{i.ingredients}})</p>
+            </div>
+            <div class="cijena">
+                <p>Regular: {{i.priceRegular}}0kn</p>
+                <p>Jumbo: {{i.priceJumbo}}0kn</p>
+            </div>
+            <div class="dodaj-gumb mx-auto">
+                <button id="dodaj" class="dodaj-pizzu" onclick="window.location.href = '/dodaj/{{i.id}}';">Dodaj u košaricu</button>
+            </div>
+            {% if username %}
+            <div class="card2 mx-auto">
+                <button class="admin-edit-pizza" onclick="window.location.href = '/edit/{{i.id}}';">Uredi</button>
+            </div>
+            <div class="card2 mx-auto">
+                <button class="admin-delete-pizza" onclick="window.location.href = '/delete/{{i.id}}';">Izbriši</button>
+            </div>
+            
+            {% else %}
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% include 'footer.html' %}
+{% endblock %}

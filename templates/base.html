@@ -1,0 +1,137 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Celeste pizza{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename='images/logo.ico' ) }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='images/logo.ico') }}" type="image/x-icon">
+    {% block styles %}
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/reset.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/mobile-css.css') }}">
+        <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=McLaren&display=swap" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    {% endblock %}
+{% endblock %}
+
+<div class="content">
+{% block navbar %}
+<nav id="links" class="nav nav-pills flex-column flex-sm-row">
+    <a class="flex-sm-fill text-sm-center nav-link" href="/">HOME</a>
+    <a class="flex-sm-fill text-sm-center nav-link" href="/#usluge">USLUGE</a>
+    <a class="flex-sm-fill text-sm-center nav-link" href="/#meni">MENI</a>
+    <a class="flex-sm-fill text-sm-center nav-link" href="/o-nama">O NAMA</a>
+    <a class="flex-sm-fill text-sm-center nav-link" href="/kontakt">KONTAKT</a>
+    <a class="flex-sm-fill text-sm-center nav-link" href="/kosarica">
+        <i class="fa fa-shopping-cart fa-lg">
+                {% if broj_u_kosarici == 0 or broj_u_kosarici == None %}
+                {% else %}
+                <span class='badge badge-warning' id='lblCartCount'>{{broj_u_kosarici}}</span>
+                {% endif %}
+        </i>
+    </a>
+    <a class="flex-sm-fill text-sm-center nav-link" href="{% if username%}/logout{% else %}/login{% endif %}">
+        {% if username%}LOGOUT: {{ username }}{% else %}LOGIN{% endif %}
+    </a>
+    {% if username%} <a class="flex-sm-fill text-sm-center nav-link" href="{% if username%}/narudzbe{% else %}{% endif %}">Narudžbe</a>
+    {% else %}
+    {% endif %}
+</nav>
+
+
+<button id="navbutton" class="navbutton" onclick="toggleMenu()">
+    <div class="bar1"></div>
+    <div class="bar2"></div>
+    <div class="bar3"></div>
+</button>
+
+<div id="mySidebar" class="sidebar">
+    <a class="link flex-sm-fill text-sm-center nav-link" href="/" onclick="toggleMenu()">HOME</a>
+    <a class="link flex-sm-fill text-sm-center nav-link" href="/#usluge" onclick="toggleMenu()">USLUGE</a>
+    <a class="link flex-sm-fill text-sm-center nav-link" href="/#meni" onclick="toggleMenu()">MENI</a>
+    <a class="link flex-sm-fill text-sm-center nav-link" href="/o-nama" onclick="toggleMenu()">O NAMA</a>
+    <a class="link flex-sm-fill text-sm-center nav-link" href="/kontakt" onclick="toggleMenu()">KONTAKT</a>
+    <a class="link flex-sm-fill text-sm-center nav-link" href="/kosarica">KOŠARICA
+                {% if broj_u_kosarici == 0 or broj_u_kosarici == None %}
+                {% else %}
+                <span class='badge badge-warning' id='lblCartCount'>{{broj_u_kosarici}}</span>
+                {% endif %}
+    </a>
+    <a class="link flex-sm-fill text-sm-center nav-link" href="{% if username%}/logout{% else %}/login{% endif %}" onclick="toggleMenu()">
+        {% if username%}LOGOUT: {{ username}}{% else %}LOGIN{% endif %}
+    </a>
+    {% if username%} <a class="link flex-sm-fill text-sm-center nav-link" href="{% if username%}/narudzbe{% else %}{% endif %}">Narudžbe</a>
+    {% else %}
+    {% endif %}
+</div>
+{% endblock %}
+
+
+{% block content %}
+    {% block page_content %}{% endblock %}
+{% endblock %}
+
+</div>
+
+{% block scripts %}
+<script>
+    var navbutton = document.getElementById("navbutton");
+    var sidebar = document.getElementById("mySidebar");
+    var open = false;
+
+function toggleMenu() {
+    if(open == false) {
+        sidebar.style.width = "100%";
+        open = true;
+        navbutton.classList.toggle("change");
+    } else {
+        sidebar.style.width = "0";
+        open = false;
+        navbutton.classList.toggle("change");
+    }
+}
+
+var links = document.getElementsByClassName("link");
+
+for (var i = 0; i < links.length; i++) {
+    links[i].addEventListener("click", function() {
+        var current = document.getElementsByClassName("active");
+        current[0].className = current[0].className.replace(" active", "");
+        this.className += " active";
+    });
+}
+
+// Modal script
+
+var addModal = document.getElementById("add-modal");
+var addBtn = document.getElementById("admin-add-pizza");
+var addSpan = document.getElementsByClassName("add-close")[0];
+
+// Kada korisnik klikne na botun otvara se modal
+addBtn.onclick = function() {
+  addModal.style.display = "block";
+}
+
+// Kada korisnik klikne na x zatvara modal
+addSpan.onclick = function() {
+  addModal.style.display = "none";
+}
+
+// Kada korisnik klikne na ekran gdje se ne nalazi modal, modal se zatvara isto tako i za sidebar
+window.onclick = function(event) {
+  if (event.target == addModal) {
+    addModal.style.display = "none";
+  } else if (event.target == sidebar) {
+    sidebar.style.width = "0";
+    open = false;
+    navbutton.classList.toggle("change");
+  }
+}
+
+</script>
+{% endblock %}}

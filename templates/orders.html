@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Celeste pizza{% endblock %}
+
+{% block page_content %}    
+
+    <div class="intro-login">
+        <div class="container">
+            <div class="page-header">
+                {% if podatci == [] %}
+                <p>Nemate narudžbi!</p>
+                {% else %}
+                {% for el in podatci | reverse %}
+                <h2>Naurdžba #{{ids[podatci.index(el)]}}.</h2>
+                <div class="narudzba">
+                    <div class="narudzba-podatci">
+                        <h4>Podatci:</h4>
+                        <p>Ime: {{el[0]}}</p>
+                        <p>Prezime: {{el[1]}}</p>
+                        <p>Broj: {{el[2]}}</p>
+                        <p>Adresa: {{el[3]}}</p>
+                        <p>Ukupna vrijednost narudžbe: {{el[4]}}0 kn</p>
+                        <p>Vrijeme narudžbe: {{el[5]}}</p>
+                    </div>
+                
+                    <div class="narudzba-sadrzaj">
+                        <h4>Sadržaj narudžbe:</h4>
+                        {% for i in narudzbe[podatci.index(el)] | reverse %}
+                            <p>Naziv pizze: {{i[0]}}</p>
+                            <p>Veličina: {{i[1]}}</p>
+                            <p>Cijena (kom): {{i[2]}}0 kn</p>
+                            <p>Broj kom: {{i[3]}}</p>
+                        {% endfor %}
+                    </div>
+                    <hr style="border-width: 5px;">
+                </div>
+                <button class="admin-delete-order" onclick="window.location.href = '/izbrisi-narudzbu-iz-baze/{{ids[podatci.index(el)]}}';">Delete</button>
+                <hr style="border-width: 5px;">
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% include 'footer.html' %}
+{% endblock %}

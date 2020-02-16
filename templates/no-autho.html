@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Celeste pizza{% endblock %}
+
+{% block page_content %}    
+
+    <div class="intro-login">
+        <div class="container">
+            <div class="page-header">
+                {% for message in get_flashed_messages() %}
+                <div class="alert alert-danger fade show">
+                    {{message}}
+                </div>
+                {% endfor %}
+                {{ wtf.quick_form(natragForm) }}
+            </div>
+        </div>
+    </div>
+
+{% include 'footer.html' %}
+{% endblock %}

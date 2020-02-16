@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Celeste pizza{% endblock %}
+
+{% block page_content %}
+
+    <div class="kontakt">
+        <div class="hero-text">
+            <img src="../static/images/logo.png">
+            <h1 style="font-size: 4em;">CELESTE PIZZA</h1>
+        </div>
+    </div>
+        
+    <div class="intro">
+
+    <h3 id="text">KONTAKT INFO</h3>
+
+    <p id="text2">
+        <p><b>Telefon: </b>+385 12 345 678</p>
+        <p><b>Fax: </b>+385 87 654 321</p>
+        <p><b>MB: </b>1234567</p>
+        <p><b>OIB: </b>01234567891</p>
+        <p><b>E-mail: </b>info@celeste-pizza.hr</p>
+    </p>
+                  
+</div>
+
+{% include 'footer.html' %}
+{% endblock %}

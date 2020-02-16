@@ -1,0 +1,26 @@
+{% block footer %}
+<footer class="footer mx-auto">
+    <div class="footer-element mx-auto">
+        <img src="../static/images/logo.png">
+    </div>
+    <div class="footer-element mx-auto">
+        <nav id="footer-links">
+            <a class="footer-l" href="/">HOME</a>
+            <a class="footer-l" href="/#usluge">USLUGE</a>
+            <a class="footer-l" href="/#meni">MENI</a>
+            <a class="footer-l" href="/o-nama">O NAMA</a>
+            <a class="footer-l" href="/kontakt">KONTAKT</a>
+            <a class="footer-l" href="{% if username%}/logout{% else %}/login{% endif %}">{% if username%}LOGOUT: {{ username }}{% else %}LOGIN{% endif %}</a>
+            {% if username%} <a class="footer-l" href="{% if username%}/narudzbe{% else %}{% endif %}">Narudžbe</a>
+            {% else %}
+            {% endif %}
+        </nav>
+    </div>
+    <div class="footer-element mx-auto">
+        <a class="social-link" href="#" target="_blank"><img class="social" src="../static/images/social/facebook.svg"></a>
+        <a class="social-link" href="#" target="_blank"><img class="social" src="../static/images/social/instagram.svg"></a>
+        <a class="social-link" href="#" target="_blank"><img class="social" src="../static/images/social/twitter.svg"></a>
+        <a class="social-link" href="#" target="_blank"><img class="social" src="../static/images/social/youtube.svg"></a>
+    </div>
+</footer>
+{% endblock %}
