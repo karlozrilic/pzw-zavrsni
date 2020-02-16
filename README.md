@@ -14,4 +14,4 @@
 - Dodavanje, brisanje i uređivanje postojećih pizza u bazi podataka
 - Admin login (username = admin@admin.com, lozinka = adminadmin)
 - Izlistavanje svih narudžbi i njihovo pojedinačno brisanje
-- Shopping cart i brisanje proizboda iz nje
+- Shopping cart i brisanje proizvoda iz nje
