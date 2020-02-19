@@ -27,13 +27,28 @@
     <a class="flex-sm-fill text-sm-center nav-link" href="/#meni">MENI</a>
     <a class="flex-sm-fill text-sm-center nav-link" href="/o-nama">O NAMA</a>
     <a class="flex-sm-fill text-sm-center nav-link" href="/kontakt">KONTAKT</a>
-    <a class="flex-sm-fill text-sm-center nav-link" href="/kosarica">
+    <a class="flex-sm-fill text-sm-center nav-link kosarica" href="/kosarica">
         <i class="fa fa-shopping-cart fa-lg">
                 {% if broj_u_kosarici == 0 or broj_u_kosarici == None %}
                 {% else %}
                 <span class='badge badge-warning' id='lblCartCount'>{{broj_u_kosarici}}</span>
                 {% endif %}
         </i>
+        <span class="tooltip-kosarica">
+            {% if pizza == [] or pizza == None %}
+            <p>Nemate ni jedan artikl u košarici!</p>
+            {% else %}
+                {% for i in pizza %}
+                    <p>Naziv: {{ i[0] }}</p>
+                    <p>Veličina: {{ i[1] }}</p>
+                    <p>Cijena (1 kom): {{ i[2] }}0 kn</p>
+                    <p>Količina: {{ i[3] }} kom</p>
+                    <button class="remove-pizza" onclick="window.location.href = '/ukloni/{{pizza.index(i)}}';">Ukloni</button>
+                    <hr>
+                {% endfor %}
+            <p>Ukupna cijena: {{ukupno}}0 kn</p>
+            {% endif %}
+        </span>
     </a>
     <a class="flex-sm-fill text-sm-center nav-link" href="{% if username%}/logout{% else %}/login{% endif %}">
         {% if username%}LOGOUT: {{ username }}{% else %}LOGIN{% endif %}

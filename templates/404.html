@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Celeste pizza{% endblock %}
+
+{% block page_content %}    
+
+    <div class="intro-login class404">
+        <div class="container">
+            <div class="page-header">
+                <div class="hero-text">
+                    <h1 style="font-size: 6em;">404 ERROR</h1>
+                    <p style="font-size: 1em;">Ovdje nema ničega!</p>
+                    <button class="button404" onclick="window.location.href = '/';">Natrag na početnu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% include 'footer.html' %}
+{% endblock %}
