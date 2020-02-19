@@ -120,13 +120,21 @@ class Users(db.Model):
 def listPizzas():
     addForm = AdminAddPizza()
 
+    ukupno = 0
+
+    if session.get('pizza') is not None:
+        for i in session['pizza']:
+            ukupno += float(i[2]) * int(i[3])
+        session['ukupno'] = ukupno
+    else:
+        session['pizza'] = []
+
     if session.get('bad') is None:
         session['bad'] = False
 
-
     if request.method == 'GET':
         data = Pizzas.query.all()
-        return render_template('index.html', addForm=addForm, username=session.get('username'), data=data, broj_u_kosarici=session.get('broj_u_kosarici'), bad=session.get('bad'))
+        return render_template('index.html', addForm=addForm, username=session.get('username'), data=data, broj_u_kosarici=session.get('broj_u_kosarici'), bad=session.get('bad'), pizza=session.get('pizza'), ukupno=session.get('ukupno'))
 
     elif request.method == 'POST' and addForm.validate_on_submit():
         # provjera da li je slika učitana ili nije
@@ -249,17 +257,20 @@ def dodaj(id):
         broj_u_kosarici = session.get('broj_u_kosarici')
     
     if request.method == 'GET':
-        return render_template('dodaj.html', username=session.get('username'), dodajForm=dodajForm, broj_u_kosarici=session.get('broj_u_kosarici'))
+        return render_template('dodaj.html', username=session.get('username'), dodajForm=dodajForm, broj_u_kosarici=session.get('broj_u_kosarici'), pizza=session.get('pizza'))
+
     elif request.method == 'POST' and dodajForm.validate_on_submit() and dodajForm.regOrJumbo.data == 'regular':
         lista.append([temp.pizzaName, 'Regular', temp.priceRegular, dodajForm.kolicina.data])
         session['pizza'] = lista
         session['broj_u_kosarici'] = broj_u_kosarici + 1
         return redirect(url_for('listPizzas'))
+
     elif request.method == 'POST' and dodajForm.validate_on_submit() and dodajForm.regOrJumbo.data == 'jumbo':
         lista.append([temp.pizzaName, 'Jumbo', temp.priceJumbo, dodajForm.kolicina.data])
         session['pizza'] = lista
         session['broj_u_kosarici'] = broj_u_kosarici + 1
         return redirect(url_for('listPizzas'))
+
     else:
         flash('Niste odabrali veličinu!')
         return render_template('dodaj.html', username=session.get('username'), dodajForm=dodajForm, broj_u_kosarici=session.get('broj_u_kosarici'))
@@ -268,19 +279,13 @@ def dodaj(id):
 def cart():
     daljeForm = Dalje()
     natragForm = Natrag()
-    ukupno = 0
-
-    if session.get('pizza') is not None:
-        for i in session['pizza']:
-            ukupno += float(i[2]) * int(i[3])
-    else:
-        session['pizza'] = []
 
     if request.method == 'GET':
-        return render_template('cart.html', pizza=session.get('pizza'), daljeForm=daljeForm, natragForm=natragForm, ukupno=ukupno, username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'))
+        return render_template('cart.html', pizza=session.get('pizza'), daljeForm=daljeForm, natragForm=natragForm, ukupno=session.get('ukupno'), username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'))
+
     elif request.method == 'POST' and daljeForm.validate_on_submit() and len(session['pizza']) != 0:
-        session['ukupno'] = ukupno
         return redirect(url_for('checkOut'))
+
     elif request.method == 'POST' and natragForm.validate_on_submit():
         return redirect(url_for('listPizzas'))
 
@@ -290,6 +295,7 @@ def checkOut():
 
     if request.method == 'GET':
         return render_template('check-out.html', pizza=session.get('pizza'), check=check, username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'))
+
     elif request.method == 'POST' and check.validate_on_submit():
         temp = Order(ime=check.ime.data, prezime=check.prezime.data, telefon=check.telefon.data, adresa=check.adresa.data, ukupno=session.get('ukupno'), vrijeme=datetime.now(), narudzba=str(session['pizza']))
         session['bad'] = False
@@ -306,16 +312,14 @@ def checkOut():
             session['bad'] = True
             flash('Već postoji pizza pod istim imenom!')
             return redirect(url_for('listPizzas'))
-        
-        return redirect(url_for('listPizzas'))
 
 @app.route('/o-nama')
 def o_nama():
-    return render_template('o-nama.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'));
+    return render_template('o-nama.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), ukupno=session.get('ukupno'), pizza=session.get('pizza'));
 
 @app.route('/kontakt')
 def kontakt():
-    return render_template('kontakt.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'))
+    return render_template('kontakt.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), ukupno=session.get('ukupno'), pizza=session.get('pizza'))
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -341,16 +345,20 @@ def login():
     if form.validate_on_submit() and check_password_hash(pswd, form.password.data) and form.username.data == usrName:
         session['username'] = form.username.data
         return redirect(url_for('listPizzas'))
+
     elif form.validate_on_submit() and check_password_hash(pswd, form.password.data) is False and form.username.data == usrName:
         flash('Kriva lozinka!')
         return redirect(url_for('login'))
+
     elif form.validate_on_submit() and check_password_hash(pswd, form.password.data) and form.username.data != usrName:
         flash('Krivi username!')
         return redirect(url_for('login'))
+
     elif form.validate_on_submit() and check_password_hash(pswd, form.password.data) is False and form.username.data != usrName:
         flash('Neuspjela prijava!')
         return redirect(url_for('login'))
-    return render_template('login.html', form=form, username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'))
+
+    return render_template('login.html', form=form, username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), ukupno=session.get('ukupno'), pizza=session.get('pizza'))
 
 @app.route('/#usluge')
 def usluge():
@@ -397,7 +405,7 @@ def izlistajNarudzbe():
     
     # zaštita od neodobrenog ulaska
     if request.method == 'GET' and session.get('username') is not None:
-        return render_template('orders.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), ids=ids, podatci=sviPodatci, narudzbe=sveNarudzbe)
+        return render_template('orders.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), ids=ids, podatci=sviPodatci, narudzbe=sveNarudzbe, ukupno=session.get('ukupno'))
 
     elif request.method == 'GET' and session.get('username') is None:
         flash('Neodobren pristup!')
@@ -405,8 +413,6 @@ def izlistajNarudzbe():
 
     elif request.method == 'POST' and natragForm.validate_on_submit():
         return redirect(url_for('listPizzas'))
-
-    return render_template('orders.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'))
 
 @app.route('/izbrisi-narudzbu-iz-baze/<int:id>', methods=['GET', 'POST'])
 def izbrisiNarudzbu(id):
@@ -433,4 +439,10 @@ def izbrisiNarudzbu(id):
     elif request.method == 'POST' and natragForm.validate_on_submit():
         return redirect(url_for('listPizzas'))
 
-    return redirect(url_for('listPizzas'))
+@app.errorhandler(404)
+def page_not_found(e):
+	return render_template('404.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), bad=session.get('bad'), pizza=session.get('pizza'), ukupno=session.get('ukupno')), 404;
+	
+@app.errorhandler(500)
+def internal_server_error(e):
+	return render_template('500.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), bad=session.get('bad'), pizza=session.get('pizza'), ukupno=session.get('ukupno')), 500;
