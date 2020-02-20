@@ -283,11 +283,12 @@ def cart():
     if request.method == 'GET':
         return render_template('cart.html', pizza=session.get('pizza'), daljeForm=daljeForm, natragForm=natragForm, ukupno=session.get('ukupno'), username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'))
 
+    elif request.method == 'POST' and natragForm.validate_on_submit():
+        return redirect(url_for('listPizzas'))
+
     elif request.method == 'POST' and daljeForm.validate_on_submit() and len(session['pizza']) != 0:
         return redirect(url_for('checkOut'))
 
-    elif request.method == 'POST' and natragForm.validate_on_submit():
-        return redirect(url_for('listPizzas'))
 
 @app.route('/check-out', methods=['GET', 'POST'])
 def checkOut():
@@ -324,9 +325,8 @@ def kontakt():
 @app.route('/login', methods=['GET','POST'])
 def login():
     form = LoginForm()
-    users = Users.query.first()
+    users = Users.query.first()    
     
-    # ako slučajno admin nije spremljen u bazu
     if users == []:
         temp = Users(username="admin@admin.com", password=generate_password_hash('adminadmin'))
         db.session.add(temp)
@@ -342,21 +342,14 @@ def login():
         usrName = lista[0]
         pswd = lista[1]
 
-    if form.validate_on_submit() and check_password_hash(pswd, form.password.data) and form.username.data == usrName:
-        session['username'] = form.username.data
-        return redirect(url_for('listPizzas'))
+    if request.method == 'POST':
+        if form.validate_on_submit() and check_password_hash(pswd, form.password.data) and form.username.data == usrName:
+            session['username'] = form.username.data
+            return redirect(url_for('listPizzas'))
 
-    elif form.validate_on_submit() and check_password_hash(pswd, form.password.data) is False and form.username.data == usrName:
-        flash('Kriva lozinka!')
-        return redirect(url_for('login'))
-
-    elif form.validate_on_submit() and check_password_hash(pswd, form.password.data) and form.username.data != usrName:
-        flash('Krivi username!')
-        return redirect(url_for('login'))
-
-    elif form.validate_on_submit() and check_password_hash(pswd, form.password.data) is False and form.username.data != usrName:
-        flash('Neuspjela prijava!')
-        return redirect(url_for('login'))
+        elif form.validate_on_submit() and check_password_hash(pswd, form.password.data) is False or form.username.data != usrName:
+            flash('Upisali ste neispravno korisničko ime ili zaporku!')
+            return redirect(url_for('login'))
 
     return render_template('login.html', form=form, username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), ukupno=session.get('ukupno'), pizza=session.get('pizza'))
 
