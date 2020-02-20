@@ -283,11 +283,12 @@ def cart():
     if request.method == 'GET':
         return render_template('cart.html', pizza=session.get('pizza'), daljeForm=daljeForm, natragForm=natragForm, ukupno=session.get('ukupno'), username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'))
 
-    elif request.method == 'POST' and natragForm.validate_on_submit():
-        return redirect(url_for('listPizzas'))
-
-    elif request.method == 'POST' and daljeForm.validate_on_submit() and len(session['pizza']) != 0:
-        return redirect(url_for('checkOut'))
+    elif request.method == 'POST':
+        if daljeForm.validate_on_submit() and len(session['pizza']) != 0:
+            return redirect(url_for('checkOut'))
+    
+        elif natragForm.validate_on_submit():
+            return redirect(url_for('listPizzas'))
 
 
 @app.route('/check-out', methods=['GET', 'POST'])
