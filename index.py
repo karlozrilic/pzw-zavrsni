@@ -271,6 +271,7 @@ def dodaj(id):
         lista.append([temp.pizzaName, 'Jumbo', temp.priceJumbo, dodajForm.kolicina.data])
         session['pizza'] = lista
         session['broj_u_kosarici'] = broj_u_kosarici + 1
+        flash('Uspješno ste dodali ' + temp.pizzaName + ' u košaricu!')
         return redirect(url_for('listPizzas'))
 
     else:
