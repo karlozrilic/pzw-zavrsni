@@ -6,20 +6,29 @@
 {% block page_content %}    
 
 {% for message in get_flashed_messages() %}
-    <div class="alert alert-danger fade show uspjeh">
+    <div class="alert alert-danger fade show uspjeh" id="popup">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         {{ message }}
     </div>
 {% endfor %}
-
-    <div class="intro intro-login" style="margin: 0px 0 0 0; background-image: none;">
-        <div class="container">
-            <div class="page-header">
-                <h1>Login</h1>
-                {{ wtf.quick_form(form) }}
-            </div>
+<div class="intro-login">
+    <div class="container">
+        <div class="page-header">
+            <h1>Login</h1>
+            {{ wtf.quick_form(form) }}
         </div>
     </div>
+</div>
 
 {% include 'footer.html' %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+$(document).ready( function() {
+    $('#popup').delay(2000).fadeOut();
+});
+
+</script>
 {% endblock %}

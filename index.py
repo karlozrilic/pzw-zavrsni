@@ -160,7 +160,6 @@ def listPizzas():
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def editDB(id):
     editForm = AdminEditPizza()
-    natragForm = Natrag()
     pizza = Pizzas.query.get(id)
     old = pizza.pizzaName
 
@@ -183,10 +182,7 @@ def editDB(id):
     
     elif request.method == 'GET' and session.get('username') is None:
         flash('Neodobren pristup!')
-        return render_template('no-autho.html', natragForm=natragForm)
-
-    elif request.method == 'POST' and natragForm.validate_on_submit():
-        return redirect(url_for('listPizzas'))
+        return redirect(url_for('no_autho'))
 
     # kada se pritisne gumb save
     elif request.method == 'POST' and editForm.validate_on_submit() and editForm.save.data:
@@ -216,7 +212,6 @@ def editDB(id):
 @app.route('/delete/<int:id>', methods=['GET', 'POST'])
 def delete(id):
     deleteForm = AdminDeletePizza()
-    natragForm = Natrag()
     temp = Pizzas.query.get(id)
 
     # zaštita od neodobrenog ulaska
@@ -225,10 +220,7 @@ def delete(id):
 
     elif request.method == 'GET' and session.get('username') is None:
         flash('Neodobren pristup!')
-        return render_template('no-autho.html', natragForm=natragForm)
-
-    elif request.method == 'POST' and natragForm.validate_on_submit():
-        return redirect(url_for('listPizzas'))
+        return redirect(url_for('no_autho'))
 
     elif request.method == 'POST' and deleteForm.validate_on_submit() and deleteForm.yes.data:
         db.session.delete(temp)
@@ -239,6 +231,15 @@ def delete(id):
 
     elif request.method == 'POST' and deleteForm.validate_on_submit() and deleteForm.no.data:
         return redirect(url_for('listPizzas'))
+
+@app.route('/forbidden', methods=['GET', 'POST'])
+def no_autho():
+    natragForm = Natrag()
+    if request.method == 'GET':
+        return render_template('no-autho.html', natragForm=natragForm)
+    elif request.method == 'POST':
+        if natragForm.validate_on_submit():
+            return redirect(url_for('listPizzas'))
 
 # dodavanje u košaricu
 @app.route('/dodaj/<int:id>', methods=['GET', 'POST'])
@@ -257,12 +258,13 @@ def dodaj(id):
         broj_u_kosarici = session.get('broj_u_kosarici')
     
     if request.method == 'GET':
-        return render_template('dodaj.html', username=session.get('username'), dodajForm=dodajForm, broj_u_kosarici=session.get('broj_u_kosarici'), pizza=session.get('pizza'))
+        return render_template('dodaj.html', username=session.get('username'), dodajForm=dodajForm, broj_u_kosarici=session.get('broj_u_kosarici'), pizza=session.get('pizza'), ukupno=session.get('ukupno'))
 
     elif request.method == 'POST' and dodajForm.validate_on_submit() and dodajForm.regOrJumbo.data == 'regular':
         lista.append([temp.pizzaName, 'Regular', temp.priceRegular, dodajForm.kolicina.data])
         session['pizza'] = lista
         session['broj_u_kosarici'] = broj_u_kosarici + 1
+        flash('Uspješno ste dodali ' + temp.pizzaName + ' u košaricu!')
         return redirect(url_for('listPizzas'))
 
     elif request.method == 'POST' and dodajForm.validate_on_submit() and dodajForm.regOrJumbo.data == 'jumbo':
@@ -273,7 +275,7 @@ def dodaj(id):
 
     else:
         flash('Niste odabrali veličinu!')
-        return render_template('dodaj.html', username=session.get('username'), dodajForm=dodajForm, broj_u_kosarici=session.get('broj_u_kosarici'))
+        return render_template('dodaj.html', username=session.get('username'), dodajForm=dodajForm, broj_u_kosarici=session.get('broj_u_kosarici'), ukupno=session.get('ukupno'))
 
 @app.route('/kosarica', methods=['GET', 'POST'])
 def cart():
@@ -346,6 +348,7 @@ def login():
     if request.method == 'POST':
         if form.validate_on_submit() and check_password_hash(pswd, form.password.data) and form.username.data == usrName:
             session['username'] = form.username.data
+            flash('Dobrodošli!')
             return redirect(url_for('listPizzas'))
 
         elif form.validate_on_submit() and check_password_hash(pswd, form.password.data) is False or form.username.data != usrName:
@@ -378,7 +381,6 @@ def ukloniIzKosarice(id):
 
 @app.route('/narudzbe', methods=['GET', 'POST'])
 def izlistajNarudzbe():
-    natragForm = Natrag()
     narudzbeQuery = Order.query.all()
     ids = [x.id for x in Order.query.all()]
 
@@ -399,18 +401,14 @@ def izlistajNarudzbe():
     
     # zaštita od neodobrenog ulaska
     if request.method == 'GET' and session.get('username') is not None:
-        return render_template('orders.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), ids=ids, podatci=sviPodatci, narudzbe=sveNarudzbe, ukupno=session.get('ukupno'))
+        return render_template('orders.html', username=session.get('username'), broj_u_kosarici=session.get('broj_u_kosarici'), ids=ids, podatci=sviPodatci, narudzbe=sveNarudzbe, ukupno=session.get('ukupno'), pizza=session.get('pizza'))
 
     elif request.method == 'GET' and session.get('username') is None:
         flash('Neodobren pristup!')
-        return render_template('no-autho.html', natragForm=natragForm)
-
-    elif request.method == 'POST' and natragForm.validate_on_submit():
-        return redirect(url_for('listPizzas'))
+        return redirect(url_for('no_autho'))
 
 @app.route('/izbrisi-narudzbu-iz-baze/<int:id>', methods=['GET', 'POST'])
 def izbrisiNarudzbu(id):
-    natragForm = Natrag()
     narudzba = Order.query.get(id)
 
     # zaštita od neodobrenog ulaska
@@ -424,14 +422,11 @@ def izbrisiNarudzbu(id):
             db.session().rollback()
             session['bad'] = True
             flash('Ne postoji narudžba pod tim brojem!')
-            return redirect(url_for('listPizzas'))
+        return redirect(url_for('listPizzas'))
     
     elif request.method == 'GET' and session.get('username') is None:
         flash('Neodobren pristup!')
-        return render_template('no-autho.html', natragForm=natragForm)
-    
-    elif request.method == 'POST' and natragForm.validate_on_submit():
-        return redirect(url_for('listPizzas'))
+        return redirect(url_for('no_autho'))
 
 @app.errorhandler(404)
 def page_not_found(e):
