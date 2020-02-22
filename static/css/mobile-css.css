@@ -1,4 +1,4 @@
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
     .navbutton {
         position: fixed;
         top: 0;
@@ -57,17 +57,34 @@
         width: inherit;
         padding-top: 20px;
     }
-}
-@media only screen and (max-width: 1200px) {
     .card {
-        width: 400px;
+        width: 90%;
     }
     .card2 {
-        width: 400px;
+        width: 90%;
         flex-direction: column;
+    }
+    .card-image2{
+        float: left;
+        width: 50%;
+        margin: 5px;
+    }
+    .card-container2{
+        width: 100%;
+        margin: 5px;
+    }
+    .cijena{
+        width: 100%;
+        margin: 5px;
     }
     .dodaj-gumb{
         width: 100%;
+    }
+}
+@media only screen and (max-width: 1200px) {
+    .intro{
+        padding: 0;
+        margin: -50px 0 -40px 0;
     }
     .intro-login{
         margin: 10px 0 -20px 0;
@@ -88,5 +105,15 @@
         grid-column-end: 2;
         grid-row-start: 2;
         grid-row-end: 3;
+    }
+    .uspjeh{
+        position: fixed;
+        top: 20%;
+        left: 0;    
+        margin-top: 0;
+        margin-left: 0;
+        width: 100%;
+        height: auto;
+        z-index: 3;
     }
 }

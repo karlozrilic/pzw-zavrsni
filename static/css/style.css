@@ -35,7 +35,7 @@ img {
     background-size: 100%;
     position: relative;
     padding: 30px 0 50px 0;
-    margin: 10px 0 -50px 0;
+    margin: 10px 0 -35px 0;
     z-index: 1;
 }
 #links{
@@ -267,16 +267,16 @@ a:hover{
     width: 25%;
 }
 .card-container2{
-    width: 40%;
+    width: 50%;
 }
 .card2:hover {
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
 }
 .cijena{
-    width: 20%;
+    width: 25%;
 }
 .dodaj-gumb{
-    width: 15%;
+    width: 100%;
 }
 .dodaj-pizzu{
     border: none;
@@ -445,18 +445,6 @@ input[type=submit]:hover {
     cursor: pointer;
 }
 
-.form{
-    margin: 0 auto;
-    width: 90%;
-    padding-top: 20px;
-}
-
-.edit-iframe{
-    width: 100%;
-    height:inherit; 
-    overflow:auto;
-}
-
 .dodatci{
     display: none;
 }
@@ -468,7 +456,7 @@ input[type=submit]:hover {
     margin-top: -25px;
     margin-left: -350px;
     width: 700px;
-    height: 50px;
+    height: auto;
     z-index: 3;
 }
 .tooltip-kosarica{
@@ -478,6 +466,8 @@ input[type=submit]:hover {
     background-color: #f1f1f1;
     padding: 5px;
     width: 20%;
+    height: 50%;
+    overflow: scroll;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 2;
     margin-left: -6%;
@@ -494,19 +484,25 @@ input[type=submit]:hover {
 }
 
 /* Dodatci stil */
-.radios{
+label{
+    display: inline;
+    margin: 15px;
+}
+.form-group{
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+#kolicina{
     width: 50%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    margin: 0 auto;
 }
 .radio {
-    padding: 5px;
-
+    padding: 5px !important;
+    display: inline !important;
 }
 .amount{
     float: right;
-
 }
 
 /* Izlistavanje narudžbe */
