@@ -156,7 +156,7 @@ def listPizzas():
             session['bad'] = True
             flash('Već postoji pizza pod istim imenom!')
             return redirect(url_for('listPizzas'))
-    #stavio sam ovako jer ne postoji builtin wtform validator za integer ili float a jedino što moze biti krivo u ovoj formi je da je unesen string umjesto broja pa...
+    # stavio sam ovako jer ne postoji built in wtform validator za integer ili float a jedino što moze biti krivo u ovoj formi je da je unesen string umjesto broja pa...
     elif request.method == 'POST' and addForm.validate_on_submit() is False:
         flash('Unos za cijenu treba biti broj')
         session['bad'] = True
