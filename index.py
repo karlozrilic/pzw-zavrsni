@@ -5,7 +5,7 @@ from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_cl
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField, PasswordField, IntegerField, FloatField, BooleanField, RadioField, SelectField
-from wtforms.validators import DataRequired, Length, Email
+from wtforms.validators import DataRequired, Length, Email, AnyOf
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from datetime import datetime
@@ -156,6 +156,11 @@ def listPizzas():
             session['bad'] = True
             flash('Već postoji pizza pod istim imenom!')
             return redirect(url_for('listPizzas'))
+    #stavio sam ovako jer ne postoji builtin wtform validator za integer ili float a jedino što moze biti krivo u ovoj formi je da je unesen string umjesto broja pa...
+    elif request.method == 'POST' and addForm.validate_on_submit() is False:
+        flash('Unos za cijenu treba biti broj')
+        session['bad'] = True
+        return redirect(url_for('listPizzas'))
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def editDB(id):
