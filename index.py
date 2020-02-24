@@ -5,7 +5,7 @@ from flask_uploads import UploadSet, configure_uploads, IMAGES, patch_request_cl
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, SubmitField, PasswordField, IntegerField, FloatField, BooleanField, RadioField, SelectField
-from wtforms.validators import DataRequired, Length, Email, AnyOf
+from wtforms.validators import DataRequired, Length, Email
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
 from datetime import datetime
@@ -46,19 +46,45 @@ class LoginForm(FlaskForm):
 class AdminAddPizza(FlaskForm):
     pizzaName = StringField('Naziv pizze:', validators=[DataRequired(message="Obvezan unos naziva pizze!")], render_kw={"placeholder": "e.g. PIZZA MARGARITA"})
     ingredients = StringField('Sastojci:', validators=[DataRequired(message="Obvezan unos glavnih sastojaka!")], render_kw={"placeholder": "e.g. sir, rajčica, ..."})
-    priceRegular = FloatField('Cijena obične pizze:', validators=[DataRequired(message="Obvezan unos za cijenu obične pizze!")], render_kw={"placeholder": "e.g. 30"})
-    priceJumbo = FloatField('Cijena jumbo pizze:', validators=[DataRequired(message="Obvezan unos za cijenu jumbo pizze!")], render_kw={"placeholder": "e.g. 50"})
+    priceRegular = StringField('Cijena obične pizze:', validators=[DataRequired(message="Obvezan unos za cijenu obične pizze!")], render_kw={"placeholder": "e.g. 30"})
+    priceJumbo = StringField('Cijena jumbo pizze:', validators=[DataRequired(message="Obvezan unos za cijenu jumbo pizze!")], render_kw={"placeholder": "e.g. 50"})
     image = FileField('Slika:', validators=[FileAllowed(slike, 'Samo slika!')])
     submit = SubmitField('Dodaj')
+    
+    def __init__(self):
+        FlaskForm.__init__(self)
+
+    def validateFloat(self):
+        if FlaskForm.validate(self) is False:
+            return False
+        try:
+            float(self.priceRegular.data)
+            float(self.priceJumbo.data)
+        except ValueError:
+            return False
+        return True
 
 class AdminEditPizza(FlaskForm):
     pizzaName = StringField('Naziv pizze:', validators=[DataRequired(message="Obvezan unos naziva pizze!")], render_kw={"placeholder": "e.g. PIZZA MARGARITA"})
     ingredients = StringField('Sastojci:', validators=[DataRequired(message="Obvezan unos glavnih sastojaka!")], render_kw={"placeholder": "e.g. sir, rajčica, ..."})
-    priceRegular = FloatField('Cijena obične pizze:', validators=[DataRequired(message="Obvezan unos za cijenu obične pizze!")], render_kw={"placeholder": "e.g. 30"})
-    priceJumbo = FloatField('Cijena jumbo pizze:', validators=[DataRequired(message="Obvezan unos za cijenu jumbo pizze!")], render_kw={"placeholder": "e.g. 50"})
+    priceRegular = StringField('Cijena obične pizze:', validators=[DataRequired(message="Obvezan unos za cijenu obične pizze!")], render_kw={"placeholder": "e.g. 30"})
+    priceJumbo = StringField('Cijena jumbo pizze:', validators=[DataRequired(message="Obvezan unos za cijenu jumbo pizze!")], render_kw={"placeholder": "e.g. 50"})
     image = FileField('Slika:', validators=[FileAllowed(slike, 'Samo slika!')])
     save = SubmitField('Spremi')
     cancel = SubmitField('Odustani')
+
+    def __init__(self):
+        FlaskForm.__init__(self)
+
+    def validateFloat(self):
+        if FlaskForm.validate(self) is False:
+            return False
+        try:
+            float(self.priceRegular.data)
+            float(self.priceJumbo.data)
+        except ValueError:
+            return False
+        return True
 
 class AdminDeletePizza(FlaskForm):
     yes = SubmitField('Yes')
@@ -137,28 +163,35 @@ def listPizzas():
         return render_template('index.html', addForm=addForm, username=session.get('username'), data=data, broj_u_kosarici=session.get('broj_u_kosarici'), bad=session.get('bad'), pizza=session.get('pizza'), ukupno=session.get('ukupno'))
 
     elif request.method == 'POST' and addForm.validate_on_submit():
-        # provjera da li je slika učitana ili nije
-        if addForm.image.data == None:
-            path = placeholderSrc
-        else:
-            filename = slike.save(addForm.image.data)
-            path = slike.url(filename)
+        # provjera da li je cijena upisana u obliku broja
+        if addForm.validateFloat():
+            # provjera da li je slika učitana ili nije
+            if addForm.image.data == None:
+                path = placeholderSrc
+            else:
+                filename = slike.save(addForm.image.data)
+                path = slike.url(filename)
 
-        session['bad'] = False
-        temp = Pizzas(pizzaName=addForm.pizzaName.data, ingredients=addForm.ingredients.data, priceRegular=addForm.priceRegular.data, priceJumbo=addForm.priceJumbo.data, imageSrc=path)
-        try:
-            db.session.add(temp)
-            db.session.commit()
-            flash('Uspješno ste dodali: ' + temp.pizzaName)
-            return redirect(url_for('listPizzas'))
-        except exc.IntegrityError as e:
-            db.session().rollback()
+            session['bad'] = False
+            temp = Pizzas(pizzaName=addForm.pizzaName.data, ingredients=addForm.ingredients.data, priceRegular=addForm.priceRegular.data, priceJumbo=addForm.priceJumbo.data, imageSrc=path)
+            try:
+                db.session.add(temp)
+                db.session.commit()
+                flash('Uspješno ste dodali: ' + temp.pizzaName)
+                return redirect(url_for('listPizzas'))
+            except exc.IntegrityError as e:
+                db.session().rollback()
+                session['bad'] = True
+                flash('Već postoji pizza pod istim imenom!')
+                return redirect(url_for('listPizzas'))
+        else:
+            flash('Unos za cijenu treba biti broj!')
             session['bad'] = True
-            flash('Već postoji pizza pod istim imenom!')
             return redirect(url_for('listPizzas'))
-    # stavio sam ovako jer ne postoji built in wtform validator za integer ili float a jedino što moze biti krivo u ovoj formi je da je unesen string umjesto broja pa...
+
+    # nakon izmjena ukoliko forma ne uspije u validaciji jedini razlog je pogrešni format učitanog fila
     elif request.method == 'POST' and addForm.validate_on_submit() is False:
-        flash('Unos za cijenu treba biti broj')
+        flash('Slika treba biti u png ili jpeg formatu!')
         session['bad'] = True
         return redirect(url_for('listPizzas'))
 
@@ -191,25 +224,33 @@ def editDB(id):
 
     # kada se pritisne gumb save
     elif request.method == 'POST' and editForm.validate_on_submit() and editForm.save.data:
-        # provjera da li je slika učitana ili nije
-        if editForm.image.data == None:
-            path = pizza.imageSrc
-        else:
-            # u slučaju da nije stavlja placeholder sliku
-            filename = slike.save(editForm.image.data)
-            path = slike.url(filename)
+        if editForm.validateFloat():
+            # provjera da li je slika učitana ili nije
+            if editForm.image.data == None:
+                path = pizza.imageSrc
+            else:
+                # u slučaju da nije stavlja placeholder sliku
+                filename = slike.save(editForm.image.data)
+                path = slike.url(filename)
 
-        pizza.pizzaName = editForm.pizzaName.data
-        pizza.ingredients = editForm.ingredients.data
-        pizza.priceRegular = editForm.priceRegular.data
-        pizza.priceJumbo = editForm.priceJumbo.data
-        pizza.imageSrc = path
+            pizza.pizzaName = editForm.pizzaName.data
+            pizza.ingredients = editForm.ingredients.data
+            pizza.priceRegular = editForm.priceRegular.data
+            pizza.priceJumbo = editForm.priceJumbo.data
+            pizza.imageSrc = path
 
-        db.session.commit()
-        session['bad'] = False
-        flash('Uspješno ste uredili ' + old)
+            db.session.commit()
+            session['bad'] = False
+            flash('Uspješno ste uredili ' + old)
         
-        return redirect(url_for('listPizzas'))
+            return redirect(url_for('listPizzas'))
+        elif editForm.validateFloat() is False:
+            flash('Unos za cijenu treba biti broj!')
+            return redirect(url_for('editDB', id=id))
+
+    elif request.method == 'POST' and editForm.validate_on_submit() is False:
+        flash('Slika treba biti u png ili jpeg formatu!')
+        return redirect(url_for('editDB', id=id))
 
     elif editForm.cancel.data:
         return redirect(url_for('listPizzas'))
